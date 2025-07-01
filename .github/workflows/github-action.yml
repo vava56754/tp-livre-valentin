@@ -30,7 +30,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build with Gradle
+      - name: Build application
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
@@ -61,3 +61,8 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --rerun-tasks
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/test/*.xml
