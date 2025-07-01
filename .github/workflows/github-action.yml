@@ -36,4 +36,4 @@ jobs:
           arguments: build
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew test --rerun-tasks
