@@ -103,3 +103,9 @@ jobs:
         with:
           name: jacoco-report
           path: build/jacocoHtml
+
+      - name: Publish JaCoCo coverage report
+        uses: dorny/jacoco-reporter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/jacocoHtml/index.html
