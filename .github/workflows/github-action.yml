@@ -96,7 +96,7 @@ jobs:
       - name: Run JaCoCo tests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test jacocoTestReport --rerun-tasks
+          arguments: test testIntegration jacocoTestReport --rerun-tasks
 
       - name: Upload JaCoCo coverage report
         uses: actions/upload-artifact@v4
