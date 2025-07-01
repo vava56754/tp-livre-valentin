@@ -1,3 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: db/changelogs/01-create-book-table.yaml
