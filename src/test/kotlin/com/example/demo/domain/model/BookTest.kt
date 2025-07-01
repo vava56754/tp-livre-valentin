@@ -19,4 +19,32 @@ class BookTest : StringSpec({
 
         book1 shouldBe book2
     }
+
+    "should throw an exception if title is blank" {
+        val exception = shouldThrow<IllegalArgumentException> {
+            Book(title = "   ", author = "Robert C. Martin")
+        }
+        exception.message shouldBe "Book title must not be empty or blank"
+    }
+
+    "should throw an exception if author is blank" {
+        val exception = shouldThrow<IllegalArgumentException> {
+            Book(title = "Clean Code", author = "   ")
+        }
+        exception.message shouldBe "Book author must not be empty or blank"
+    }
+
+    "should throw an exception if title is empty" {
+        val exception = shouldThrow<IllegalArgumentException> {
+            Book(title = "", author = "Robert C. Martin")
+        }
+        exception.message shouldBe "Book title must not be empty or blank"
+    }
+
+    "should throw an exception if author is empty" {
+        val exception = shouldThrow<IllegalArgumentException> {
+            Book(title = "Clean Code", author = "")
+        }
+        exception.message shouldBe "Book author must not be empty or blank"
+    }
 })
