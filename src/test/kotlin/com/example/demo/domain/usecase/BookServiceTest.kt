@@ -29,23 +29,17 @@ class BookServiceTest : StringSpec({
     }
 
     "should throw an exception if title is empty" {
-        val book = Book(title = "", author = "Author")
-
         val exception = shouldThrow<IllegalArgumentException> {
-            bookService.addBook(book)
+            bookService.addBook(Book(title = "   ", author = "Author"))
         }
-
-        exception.message shouldBe "Book title must not be empty"
+        exception.message shouldBe "Book title must not be empty or blank"
     }
 
     "should throw an exception if author is empty" {
-        val book = Book(title = "Title", author = "")
-
         val exception = shouldThrow<IllegalArgumentException> {
-            bookService.addBook(book)
+            bookService.addBook(Book(title = "Title", author = "   "))
         }
-
-        exception.message shouldBe "Book author must not be empty"
+        exception.message shouldBe "Book author must not be empty or blank"
     }
 
     "should return all books sorted by title" {
