@@ -61,10 +61,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Run tests
+      - name: Run tests and generate JaCoCo report
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test --rerun-tasks
+          arguments: test jacocoTestReport --rerun-tasks
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
@@ -72,3 +72,9 @@ jobs:
           name: Gradle Test Results
           path: build/test-results/test/*.xml
           reporter: java-junit
+
+      - name: Publish JaCoCo coverage report
+        uses: dorny/jacoco-reporter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/jacocoHtml/index.html

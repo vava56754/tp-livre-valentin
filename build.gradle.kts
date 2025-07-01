@@ -3,6 +3,7 @@ plugins {
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.5.3"
 	id("io.spring.dependency-management") version "1.1.7"
+	jacoco
 }
 
 group = "com.example"
@@ -39,4 +40,23 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test) // tests are required to run before generating the report
+}
+
+jacoco {
+	toolVersion = "0.8.13"
+	reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required = false
+		csv.required = false
+		html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+	}
 }
