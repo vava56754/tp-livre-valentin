@@ -67,4 +67,4 @@ jobs:
         with:
           name: Gradle Test Results
           path: build/test-results/test/*.xml
-          reporter: junit
+          reporter: java-junit
