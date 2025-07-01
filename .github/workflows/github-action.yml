@@ -62,7 +62,7 @@ jobs:
       - name: Run Gradle tests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test --rerun-tasks
+          arguments: test testIntegration --rerun-tasks
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
