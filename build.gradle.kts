@@ -1,14 +1,14 @@
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
+    kotlin("jvm") version "1.9.0"
+    kotlin("plugin.spring") version "1.9.0"
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
     id("java")
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.2"
+    id("io.gitlab.arturbosch.detekt") version "1.23.1"
 }
 
 group = "com.example"
@@ -92,7 +92,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("io.kotest:kotest-property:5.9.1")
     testImplementation("io.mockk:mockk:1.14.4")
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.2")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     testIntegrationImplementation("io.mockk:mockk:1.13.8")
     testIntegrationImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testIntegrationImplementation("io.kotest:kotest-runner-junit5:5.9.1")
