@@ -1,77 +1,126 @@
 package com.example.demo.infrastructure.driven.postgres
 
 import com.example.demo.domain.model.Book
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import io.kotest.assertions.assertSoftly
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.util.TestPropertyValues
-import org.springframework.context.ApplicationContextInitializer
-import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
+import java.sql.ResultSet
 
-@Disabled
-@Testcontainers
 @SpringBootTest
-class BookDAOTest {
+@ActiveProfiles("testIntegration")
+class BookDAOTest(
+    private val bookDAO: BookDAO
+) : StringSpec() {
+    init {
+        extension(SpringExtension)
 
-    @Autowired
-    private lateinit var bookDAO: BookDAO
+        beforeTest {
+            performQuery(
+                // language=sql
+                "DELETE FROM book"
+            )
+        }
 
-    @Autowired
-    private lateinit var jdbcTemplate: JdbcTemplate
+        "should retrieve all books from the database" {
+            // GIVEN
+            performQuery(
+                // language=sql
+                """
+                INSERT INTO book (title, author)
+                VALUES 
+                    ('1984', 'George Orwell'),
+                    ('To Kill a Mockingbird', 'Harper Lee'),
+                    ('The Great Gatsby', 'F. Scott Fitzgerald');
+                """.trimIndent()
+            )
+
+            // WHEN
+            val books = bookDAO.findAll()
+
+            // THEN
+            books.shouldContainExactlyInAnyOrder(
+                Book("1984", "George Orwell"),
+                Book("To Kill a Mockingbird", "Harper Lee"),
+                Book("The Great Gatsby", "F. Scott Fitzgerald")
+            )
+        }
+
+        "should add a book to the database" {
+            // GIVEN
+            val book = Book("Pride and Prejudice", "Jane Austen")
+
+            // WHEN
+            bookDAO.save(book)
+
+            // THEN
+            val result = performQuery(
+                // language=sql
+                "SELECT * FROM book"
+            )
+
+            result shouldHaveSize 1
+            assertSoftly(result.first()) {
+                this["id"].shouldNotBeNull().shouldBeInstanceOf<Int>()
+                this["title"].shouldBe("Pride and Prejudice")
+                this["author"].shouldBe("Jane Austen")
+            }
+        }
+
+        afterSpec {
+            container.stop()
+        }
+    }
 
     companion object {
-        @Container
-        val postgresContainer = PostgreSQLContainer<Nothing>("postgres:15.3").apply {
-            withDatabaseName("testdb")
-            withUsername("testuser")
-            withPassword("testpass")
+        private val container = PostgreSQLContainer<Nothing>("postgres:15.3")
+
+        init {
+            container.start()
+            System.setProperty("spring.datasource.url", container.jdbcUrl)
+            System.setProperty("spring.datasource.username", container.username)
+            System.setProperty("spring.datasource.password", container.password)
         }
-    }
 
-    class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
-        override fun initialize(applicationContext: ConfigurableApplicationContext) {
-            TestPropertyValues.of(
-                "spring.datasource.url=${postgresContainer.jdbcUrl}",
-                "spring.datasource.username=${postgresContainer.username}",
-                "spring.datasource.password=${postgresContainer.password}"
-            ).applyTo(applicationContext.environment)
+        private fun ResultSet.toList(): List<Map<String, Any>> {
+            val metaData = this.metaData
+            val columnCount = metaData.columnCount
+            val rows = mutableListOf<Map<String, Any>>()
+            while (this.next()) {
+                val row = mutableMapOf<String, Any>()
+                for (i in 1..columnCount) {
+                    row[metaData.getColumnName(i)] = this.getObject(i)
+                }
+                rows.add(row)
+            }
+            return rows
         }
-    }
 
-    @BeforeEach
-    fun setup() {
-        jdbcTemplate.execute(
-            """
-            CREATE TABLE IF NOT EXISTS book (
-                id SERIAL PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                author VARCHAR(255) NOT NULL
-            )
-            """
-        )
-    }
-
-    @AfterEach
-    fun cleanup() {
-        jdbcTemplate.execute("TRUNCATE TABLE book")
-    }
-
-    @Test
-    fun `should save and retrieve books`() {
-        val book = Book(title = "Test Book", author = "Test Author")
-        bookDAO.save(book)
-
-        val books = bookDAO.findAll()
-        books.size shouldBe 1
-        books[0].title shouldBe "Test Book"
-        books[0].author shouldBe "Test Author"
+        fun performQuery(sql: String): List<Map<String, Any>> {
+            val hikariConfig = HikariConfig().apply {
+                jdbcUrl = container.jdbcUrl
+                username = container.username
+                password = container.password
+                driverClassName = container.driverClassName
+            }
+            HikariDataSource(hikariConfig).use { dataSource ->
+                dataSource.connection.use { connection ->
+                    connection.createStatement().use { statement ->
+                        statement.execute(sql)
+                        val resultSet = statement.resultSet
+                        return resultSet?.toList() ?: emptyList()
+                    }
+                }
+            }
+        }
     }
 }
