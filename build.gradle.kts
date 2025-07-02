@@ -97,3 +97,22 @@ tasks.jacocoTestReport {
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
 }
+
+tasks.register<JacocoReport>("jacocoFullReport") {
+    dependsOn(tasks.test, tasks.named("testIntegration")) // Ensure tests run before generating the report
+
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/jacocoFullReport"))
+    }
+
+    sourceDirectories.setFrom(files(sourceSets.main.get().allSource.srcDirs))
+    classDirectories.setFrom(files(sourceSets.main.get().output))
+    executionData.setFrom(
+        fileTree(buildDir).include(
+            "jacoco/test.exec",
+            "jacoco/testIntegration.exec"
+        )
+    )
+}
