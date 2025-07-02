@@ -1,3 +1,5 @@
+import info.solidsoft.gradle.pitest.PitestPluginExtension
+
 plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
@@ -81,7 +83,6 @@ tasks.withType<Test> {
 
 jacoco {
     toolVersion = "0.8.13"
-    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
 }
 
 tasks.register<JacocoReport>("jacocoFullReport") {
@@ -93,4 +94,5 @@ tasks.register<JacocoReport>("jacocoFullReport") {
         html.required.set(true)
     }
 }
+
 
