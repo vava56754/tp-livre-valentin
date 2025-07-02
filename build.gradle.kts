@@ -86,12 +86,13 @@ jacoco {
 }
 
 tasks.register<JacocoReport>("jacocoFullReport") {
-    dependsOn(tasks.named("test"), tasks.named("testIntegration")) // Ensure tests run before generating the report
+    dependsOn(tasks.named("test"), tasks.named("testIntegration"))
     executionData(tasks.named("test").get(), tasks.named("testIntegration").get())
     sourceSets(sourceSets["main"])
 
     reports {
         xml.required.set(true)
+        xml.outputLocation.set(file("$buildDir/custom-reports/jacocoFullReport.xml"))
         html.required.set(true)
     }
 }
