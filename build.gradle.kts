@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
-    jacoco
+    id("jacoco")
     id("java")
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
@@ -86,6 +86,7 @@ jacoco {
 }
 
 tasks.register<JacocoReport>("jacocoFullReport") {
+    dependsOn(tasks.named("test"), tasks.named("testIntegration")) // Ensure tests run before generating the report
     executionData(tasks.named("test").get(), tasks.named("testIntegration").get())
     sourceSets(sourceSets["main"])
 
@@ -95,4 +96,20 @@ tasks.register<JacocoReport>("jacocoFullReport") {
     }
 }
 
+configure<PitestPluginExtension> {
+    targetClasses.set(listOf("com.example.demo.*"))
+}
+
+pitest {
+    targetClasses.add("com.example.demo.*")
+    junit5PluginVersion.set("1.2.0")
+    avoidCallsTo.set(setOf("kotlin.jvm.internal"))
+    mutators.set(setOf("STRONGER"))
+    threads.set(4)
+    jvmArgs.add("-Xmx1024m")
+    testSourceSets.addAll(sourceSets["test"])
+    mainSourceSets.addAll(sourceSets["main"])
+    outputFormats.addAll("XML", "HTML")
+    excludedClasses.add("**LibraryApplication")
+}
 

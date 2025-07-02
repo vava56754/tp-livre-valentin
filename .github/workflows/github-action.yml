@@ -49,6 +49,8 @@ jobs:
             build/test-results/testIntegration/*.xml
       - name: Run Coverage
         run: ./gradlew jacocoFullReport
+      - name: Debug Coverage Report Path
+        run: ls -R build/reports/jacoco
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v4.8
