@@ -1,16 +1,19 @@
 package com.example.demo.infrastructure.driven.postgres
 
 import com.example.demo.domain.model.Book
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.util.TestPropertyValues
+import org.springframework.context.ApplicationContextInitializer
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.jdbc.core.JdbcTemplate
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import io.kotest.matchers.shouldBe
 
 @Testcontainers
 @SpringBootTest
@@ -28,6 +31,16 @@ class BookDAOTest {
             withDatabaseName("testdb")
             withUsername("testuser")
             withPassword("testpass")
+        }
+    }
+
+    class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
+        override fun initialize(applicationContext: ConfigurableApplicationContext) {
+            TestPropertyValues.of(
+                "spring.datasource.url=${postgresContainer.jdbcUrl}",
+                "spring.datasource.username=${postgresContainer.username}",
+                "spring.datasource.password=${postgresContainer.password}"
+            ).applyTo(applicationContext.environment)
         }
     }
 
