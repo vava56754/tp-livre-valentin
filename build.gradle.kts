@@ -4,6 +4,8 @@ plugins {
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
     jacoco
+    id("java")
+    id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
 
 group = "com.example"
@@ -77,42 +79,18 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
-tasks.jacocoTestReport {
-    dependsOn(tasks.test, tasks.named("testIntegration")) // tests are required to run before generating the report
-}
-
 jacoco {
     toolVersion = "0.8.13"
     reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
 }
 
-tasks.jacocoTestReport {
-    reports {
-        xml.required = false
-        csv.required = false
-        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
-    }
-}
-
 tasks.register<JacocoReport>("jacocoFullReport") {
-    dependsOn(tasks.test, tasks.named("testIntegration")) // Ensure tests run before generating the report
+    executionData(tasks.named("test").get(), tasks.named("testIntegration").get())
+    sourceSets(sourceSets["main"])
 
     reports {
         xml.required.set(true)
-        csv.required.set(false)
-        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/jacocoFullReport"))
+        html.required.set(true)
     }
-
-    sourceDirectories.setFrom(files(sourceSets.main.get().allSource.srcDirs))
-    classDirectories.setFrom(files(sourceSets.main.get().output))
-    executionData.setFrom(
-        fileTree(buildDir).include(
-            "jacoco/test.exec",
-            "jacoco/testIntegration.exec"
-        )
-    )
 }
+
