@@ -92,3 +92,21 @@ jobs:
         with:
           name: detekt-report
           path: build/reports/detekt
+      - name: Install K6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+      - name: Run K6 Performance Tests
+        run: k6 run performance-tests/performance-test.js -c config.json --out json=report.json
+
+      - name: Install k6-to-html
+        run: npm install -g k6-to-html
+
+      - name: Generate HTML Report
+        run: k6-to-html report.json -o report.html
+
+      - name: Upload K6 Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-performance-report
+          path: report.html
