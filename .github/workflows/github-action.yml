@@ -103,7 +103,14 @@ jobs:
             echo "Waiting for application to start..."
             sleep 5
           done
-
+      - name: Install K6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg software-properties-common
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
       - name: Run K6 Performance Tests
         run: k6 run performance-tests/performance-test.js -c config.json --out json=report.json
         env:
