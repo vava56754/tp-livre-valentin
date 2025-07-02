@@ -92,3 +92,23 @@ jobs:
         with:
           name: detekt-report
           path: build/reports/detekt
+      - name: Build Docker Image
+        run: docker build -t demo-app .
+      - name: Run Docker Container
+        run: docker run -d -p 8080:8080 --name demo-app demo-app
+      - name: Wait for Application to Start
+        run: |
+          for i in {1..30}; do
+            curl -s http://localhost:8080/actuator/health | grep '"status":"UP"' && break
+            echo "Waiting for application to start..."
+            sleep 5
+          done
+
+      - name: Run K6 Performance Tests
+        run: k6 run performance-tests/performance-test.js -c config.json --out json=report.json
+        env:
+          BASE_URL: http://localhost:8080
+
+      - name: Stop Docker Container
+        if: always()
+        run: docker stop demo-app && docker rm demo-app
