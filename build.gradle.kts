@@ -1,8 +1,8 @@
 import info.solidsoft.gradle.pitest.PitestPluginExtension
 
 plugins {
-    kotlin("jvm") version "1.9.0"
-    kotlin("plugin.spring") version "1.9.0"
+    kotlin("jvm") version "1.9.25"
+    kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
@@ -176,5 +176,13 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
         xml.required.set(true) // Enable XML report
         html.required.set(true) // Enable HTML report
         txt.required.set(false) // Disable TXT report
+    }
+}
+
+configurations.matching { it.name != "detekt" }.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion("1.9.0") // Replace with the Kotlin version supported by Detekt
+        }
     }
 }
