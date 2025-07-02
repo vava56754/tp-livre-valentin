@@ -1,4 +1,4 @@
-package com.example.demo.application
+package com.example.demo.infrastructure.application
 
 import com.example.demo.domain.port.BookRepository
 import com.example.demo.domain.usecase.BookService

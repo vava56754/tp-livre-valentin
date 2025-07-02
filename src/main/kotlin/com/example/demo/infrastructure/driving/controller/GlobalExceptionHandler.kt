@@ -14,7 +14,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException::class)
-    fun handleRuntimeException(ex: RuntimeException): ResponseEntity<String> {
+    fun handleRuntimeException(): ResponseEntity<String> {
         return ResponseEntity("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }

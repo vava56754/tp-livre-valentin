@@ -2,8 +2,8 @@ package com.example.demo.infrastructure.driven.postgres
 
 import com.example.demo.domain.model.Book
 import com.example.demo.domain.port.BookRepository
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository

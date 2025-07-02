@@ -8,7 +8,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.list
-import io.kotest.property.arbitrary.string
 import io.kotest.property.arbitrary.stringPattern
 import io.kotest.property.checkAll
 import io.mockk.every
