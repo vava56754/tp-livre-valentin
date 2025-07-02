@@ -99,7 +99,7 @@ jobs:
       - name: Wait for Application to Start
         run: |
           for i in {1..30}; do
-            curl -s http://localhost:8080/actuator/health | grep '"status":"UP"' && break
+            curl -s http://localhost:8080/books | grep '"status":"UP"' && break
             echo "Waiting for application to start..."
             sleep 5
           done
