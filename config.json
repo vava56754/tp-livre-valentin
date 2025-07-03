@@ -8,6 +8,22 @@
       "preAllocatedVUs": 5,
       "maxVUs": 100,
       "exec": "test_api_endpoints_config"
+    },
+    "load_test": {
+      "executor": "constant-vus",
+      "vus": 50,
+      "duration": "30s",
+      "exec": "test_api_endpoints_config"
+    },
+    "stress_test": {
+      "executor": "ramping-vus",
+      "startVUs": 0,
+      "stages": [
+        { "duration": "1m", "target": 100 },
+        { "duration": "2m", "target": 200 },
+        { "duration": "1m", "target": 0 }
+      ],
+      "exec": "test_api_endpoints_config"
     }
   },
   "thresholds": {
@@ -17,5 +33,8 @@
     "http_req_duration{scenario:test_api_endpoints_config}": [
       "p(95)<50"
     ]
+  },
+  "output": {
+    "json": "output/results.json"
   }
 }

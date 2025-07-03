@@ -26,4 +26,10 @@ class BookController(private val bookService: BookService) {
         val book = Book(title = bookDTO.title, author = bookDTO.author)
         bookService.addBook(book)
     }
+
+    @PostMapping("/reserve")
+    @ResponseStatus(HttpStatus.OK)
+    fun reserveBook(@RequestBody bookDTO: BookDTO): Boolean {
+        return bookService.reserveBook(bookDTO.title)
+    }
 }

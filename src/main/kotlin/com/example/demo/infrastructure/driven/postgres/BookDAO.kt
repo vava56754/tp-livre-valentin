@@ -26,4 +26,10 @@ class BookDAO(private val jdbcTemplate: NamedParameterJdbcTemplate) : BookReposi
             )
         }
     }
+
+    override fun reserveBook(title: String): Boolean {
+        val sql = "UPDATE book SET is_reserved = TRUE WHERE title = :title"
+        val params = MapSqlParameterSource().addValue("title", title)
+        return jdbcTemplate.update(sql, params) > 0
+    }
 }
