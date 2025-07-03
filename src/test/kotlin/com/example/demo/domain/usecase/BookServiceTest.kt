@@ -31,6 +31,7 @@ class BookServiceTest : StringSpec({
         val exception = shouldThrow<IllegalArgumentException> {
             bookService.addBook(Book(title = "   ", author = "Author"))
         }
+
         exception.message shouldBe "Book title must not be empty or blank"
     }
 
@@ -38,6 +39,7 @@ class BookServiceTest : StringSpec({
         val exception = shouldThrow<IllegalArgumentException> {
             bookService.addBook(Book(title = "Title", author = "   "))
         }
+
         exception.message shouldBe "Book author must not be empty or blank"
     }
 
@@ -69,4 +71,33 @@ class BookServiceTest : StringSpec({
             result shouldContainExactlyInAnyOrder books
         }
     }
+
+    "reserveBook returns true and calls repository when book exists and not reserved" {
+        val book = Book(id = 42L, title = "Clean Code", author = "Robert C. Martin", isReserved = false)
+        every { bookRepository.findAll() } returns listOf(book)
+        every { bookRepository.reserveBook(book.id!!) } returns true
+
+        val result = bookService.reserveBook(book.id!!)
+
+        result shouldBe true
+        verify { bookRepository.reserveBook(book.id!!) }
+    }
+
+    "reserveBook should throw an exception when book not found" {
+        every { bookRepository.findAll() } returns emptyList()
+
+        shouldThrow<IllegalStateException> {
+            bookService.reserveBook(999L)
+        }.message shouldBe "Book is already reserved or does not exist"
+    }
+
+    "reserveBook should throw an exception when already reserved" {
+        val book = Book(id = 43L, title = "Clean Code", author = "Robert C. Martin", isReserved = true)
+        every { bookRepository.findAll() } returns listOf(book)
+
+        shouldThrow<IllegalStateException> {
+            bookService.reserveBook(book.id!!)
+        }.message shouldBe "Book is already reserved or does not exist"
+    }
+
 })

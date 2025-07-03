@@ -4,6 +4,6 @@ Feature: store and get books
     And the user creates the book "Tata" by "Author2"
     When the user gets all books
     Then the list should contain the following books
-      | title | author   |
-      | Toto  | Author1  |
-      | Tata  | Author2  |
+      | id  | title | author  |
+      | ANY | Toto  | Author1 |
+      | ANY | Tata  | Author2 |

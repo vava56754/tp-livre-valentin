@@ -2,12 +2,12 @@ package com.example.demo.domain.model
 
 data class Book(
     val id: Long? = null,
-    val title: String,
     val author: String,
     val isReserved: Boolean = false,
+    val title: String,
 ) {
     init {
-        require(title.isNotBlank()) { "Book title must not be empty or blank" }
         require(author.isNotBlank()) { "Book author must not be empty or blank" }
+        require(title.isNotBlank()) { "Book title must not be empty or blank" }
     }
 }

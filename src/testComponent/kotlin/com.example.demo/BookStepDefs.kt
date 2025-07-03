@@ -57,11 +57,40 @@ class BookStepDefs {
     fun shouldContainBooks(payload: List<Map<String, String?>>) {
         val expectedBooks = payload.map {
             mapOf(
+                "id" to (it["id"] ?: error("ID cannot be null")),
                 "title" to (it["title"] ?: error("Title cannot be null")),
                 "author" to (it["author"] ?: error("Author cannot be null"))
             )
         }
         val actualBooks = lastResponse.jsonPath().getList<Map<String, String>>("")
         assertThat(actualBooks).containsAll(expectedBooks)
+    }
+
+    @When("the user reserves the book {string}")
+    fun reserveBook(id: Long) {
+        lastResponse = RestAssured.given()
+            .`when`()
+            .post("/books/$id/reserve")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response()
+    }
+
+    @Then("the book {string} is reserved")
+    fun bookIsReserved(id: Long) {
+        val all = RestAssured.given()
+            .`when`()
+            .get("/books")
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath()
+            .getList<Map<String, Any>>("")
+
+        val book = all.find { it["id"] == id }
+            ?: error("Book $id not found in response")
+
+        assertThat(book["isReserved"] as Boolean).isTrue
     }
 }
