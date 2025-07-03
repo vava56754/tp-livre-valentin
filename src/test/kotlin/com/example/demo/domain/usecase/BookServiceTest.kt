@@ -99,5 +99,4 @@ class BookServiceTest : StringSpec({
             bookService.reserveBook(book.id!!)
         }.message shouldBe "Book is already reserved or does not exist"
     }
-
 })

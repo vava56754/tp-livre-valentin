@@ -34,7 +34,6 @@ class BookDAOTest(
         "should retrieve all books from the database" {
             // GIVEN
             performQuery(
-                // language=sql
                 """
                 INSERT INTO book (id, title, author, is_reserved)
                 VALUES
@@ -64,7 +63,6 @@ class BookDAOTest(
 
             // THEN
             val result = performQuery(
-                // language=sql
                 "SELECT * FROM book"
             )
 
@@ -80,7 +78,6 @@ class BookDAOTest(
         "should reserve a book in the database" {
             // GIVEN
             performQuery(
-                // language=sql
                 """
                 INSERT INTO book (id, title, author, is_reserved)
                 VALUES (1, '1984', 'George Orwell', false);
@@ -93,7 +90,6 @@ class BookDAOTest(
             // THEN
             result shouldBe true
             val updatedBook = performQuery(
-                // language=sql
                 "SELECT * FROM book WHERE id = 1"
             ).first()
 

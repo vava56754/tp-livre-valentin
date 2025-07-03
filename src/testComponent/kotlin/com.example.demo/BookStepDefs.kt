@@ -59,7 +59,7 @@ class BookStepDefs {
             mapOf(
                 "title" to (it["title"] ?: error("Title cannot be null")),
                 "author" to (it["author"] ?: error("Author cannot be null")),
-                "reserved" to false // Default value for reserved field
+                "reserved" to false
             )
         }
         val actualBooks = lastResponse.jsonPath().getList<Map<String, Any>>("").map { book ->
@@ -89,9 +89,7 @@ class BookStepDefs {
             .jsonPath()
             .getList<Map<String, Any>>("")
 
-        println("Books retrieved: $books") // Debugging log
-
-        val book = books.find { it["id"].toString().toLong() == id } // Ensure proper type comparison
+        val book = books.find { it["id"].toString().toLong() == id }
         assertThat(book).withFailMessage("Book with id $id not found").isNotNull
         assertThat(book!!["reserved"]).isEqualTo(expectedStatus.toBoolean())
     }
