@@ -1,37 +1,43 @@
 {
   "discardResponseBodies": true,
   "scenarios": {
-    "api_endpoints_config": {
+    "get_books": {
       "executor": "constant-arrival-rate",
       "rate": 50,
       "duration": "10s",
       "preAllocatedVUs": 5,
       "maxVUs": 100,
-      "exec": "test_api_endpoints_config"
+      "exec": "test_get_books"
     },
-    "load_test": {
-      "executor": "constant-vus",
-      "vus": 50,
-      "duration": "30s",
-      "exec": "test_api_endpoints_config"
+    "create_book": {
+      "executor": "constant-arrival-rate",
+      "rate": 20,
+      "duration": "10s",
+      "preAllocatedVUs": 5,
+      "maxVUs": 50,
+      "exec": "test_create_book"
     },
-    "stress_test": {
-      "executor": "ramping-vus",
-      "startVUs": 0,
-      "stages": [
-        { "duration": "1m", "target": 100 },
-        { "duration": "2m", "target": 200 },
-        { "duration": "1m", "target": 0 }
-      ],
-      "exec": "test_api_endpoints_config"
+    "reserve_book": {
+      "executor": "constant-arrival-rate",
+      "rate": 10,
+      "duration": "10s",
+      "preAllocatedVUs": 5,
+      "maxVUs": 50,
+      "exec": "test_reserve_book"
     }
   },
   "thresholds": {
     "failed_requests": [
       "rate<0.01"
     ],
-    "http_req_duration{scenario:test_api_endpoints_config}": [
+    "http_req_duration{scenario:get_books}": [
       "p(95)<50"
+    ],
+    "http_req_duration{scenario:create_book}": [
+      "p(95)<100"
+    ],
+    "http_req_duration{scenario:reserve_book}": [
+      "p(95)<100"
     ]
   },
   "output": {
