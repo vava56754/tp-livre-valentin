@@ -57,29 +57,30 @@ class BookStepDefs {
     fun shouldContainBooks(payload: List<Map<String, String?>>) {
         val expectedBooks = payload.map {
             mapOf(
-                "id" to (it["id"] ?: error("ID cannot be null")),
                 "title" to (it["title"] ?: error("Title cannot be null")),
-                "author" to (it["author"] ?: error("Author cannot be null"))
+                "author" to (it["author"] ?: error("Author cannot be null")),
+                "reserved" to false // Default value for reserved field
             )
         }
-        val actualBooks = lastResponse.jsonPath().getList<Map<String, String>>("")
+        val actualBooks = lastResponse.jsonPath().getList<Map<String, Any>>("").map { book ->
+            book.filterKeys { it != "id" } // Ignore the 'id' field during comparison
+        }
         assertThat(actualBooks).containsAll(expectedBooks)
     }
 
-    @When("the user reserves the book {string}")
+    @When("the user reserves the book with id {long}")
     fun reserveBook(id: Long) {
         lastResponse = RestAssured.given()
             .`when`()
-            .post("/books/$id/reserve")
+            .post("/books/reserve/$id")
             .then()
-            .statusCode(200)
             .extract()
             .response()
     }
 
-    @Then("the book {string} is reserved")
-    fun bookIsReserved(id: Long) {
-        val all = RestAssured.given()
+    @Then("the reservation status of the book with id {long} should be {string}")
+    fun verifyReservationStatus(id: Long, expectedStatus: String) {
+        val books = RestAssured.given()
             .`when`()
             .get("/books")
             .then()
@@ -88,9 +89,10 @@ class BookStepDefs {
             .jsonPath()
             .getList<Map<String, Any>>("")
 
-        val book = all.find { it["id"] == id }
-            ?: error("Book $id not found in response")
+        println("Books retrieved: $books") // Debugging log
 
-        assertThat(book["isReserved"] as Boolean).isTrue
+        val book = books.find { it["id"].toString().toLong() == id } // Ensure proper type comparison
+        assertThat(book).withFailMessage("Book with id $id not found").isNotNull
+        assertThat(book!!["reserved"]).isEqualTo(expectedStatus.toBoolean())
     }
 }

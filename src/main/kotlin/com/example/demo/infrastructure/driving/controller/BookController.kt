@@ -14,6 +14,7 @@ class BookController(private val bookService: BookService) {
     fun getAllBooks(): List<BookDTO> {
         return bookService.getAllBooks().map { book ->
             BookDTO(
+                id = book.id,
                 title = book.title,
                 author = book.author,
                 isReserved = book.isReserved
