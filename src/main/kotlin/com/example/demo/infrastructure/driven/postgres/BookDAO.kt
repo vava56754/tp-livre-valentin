@@ -10,26 +10,28 @@ import org.springframework.stereotype.Repository
 class BookDAO(private val jdbcTemplate: NamedParameterJdbcTemplate) : BookRepository {
 
     override fun save(book: Book) {
-        val sql = "INSERT INTO book (title, author) VALUES (:title, :author)"
+        val sql = "INSERT INTO book (title, author, is_reserved) VALUES (:title, :author, :isReserved)"
         val params = MapSqlParameterSource()
             .addValue("title", book.title)
             .addValue("author", book.author)
+            .addValue("isReserved", false)
         jdbcTemplate.update(sql, params)
     }
-
     override fun findAll(): List<Book> {
-        val sql = "SELECT title, author FROM book"
+        val sql = "SELECT id, title, author, is_reserved FROM book"
         return jdbcTemplate.query(sql) { rs, _ ->
             Book(
+                id = rs.getLong("id"),
                 title = rs.getString("title"),
-                author = rs.getString("author")
+                author = rs.getString("author"),
+                isReserved = rs.getBoolean("is_reserved")
             )
         }
     }
 
-    override fun reserveBook(title: String): Boolean {
-        val sql = "UPDATE book SET is_reserved = TRUE WHERE title = :title"
-        val params = MapSqlParameterSource().addValue("title", title)
+    override fun reserveBook(id: Long): Boolean {
+        val sql = "UPDATE book SET is_reserved = TRUE WHERE id = :id AND is_reserved = FALSE"
+        val params = MapSqlParameterSource().addValue("id", id)
         return jdbcTemplate.update(sql, params) > 0
     }
 }

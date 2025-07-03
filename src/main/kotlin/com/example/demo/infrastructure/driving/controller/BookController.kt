@@ -4,20 +4,21 @@ import com.example.demo.domain.model.Book
 import com.example.demo.domain.usecase.BookService
 import com.example.demo.infrastructure.driving.controller.dto.BookDTO
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/books")
 class BookController(private val bookService: BookService) {
 
     @GetMapping
-    fun getAllBooks(): List<Book> {
-        return bookService.getAllBooks()
+    fun getAllBooks(): List<BookDTO> {
+        return bookService.getAllBooks().map { book ->
+            BookDTO(
+                title = book.title,
+                author = book.author,
+                isReserved = book.isReserved
+            )
+        }
     }
 
     @PostMapping
@@ -27,9 +28,9 @@ class BookController(private val bookService: BookService) {
         bookService.addBook(book)
     }
 
-    @PostMapping("/reserve")
+    @PostMapping("/reserve/{id}")
     @ResponseStatus(HttpStatus.OK)
-    fun reserveBook(@RequestBody bookDTO: BookDTO): Boolean {
-        return bookService.reserveBook(bookDTO.title)
+    fun reserveBook(@PathVariable id: Long): Boolean {
+        return bookService.reserveBook(id)
     }
 }

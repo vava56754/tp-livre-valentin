@@ -36,11 +36,11 @@ class BookDAOTest(
             performQuery(
                 // language=sql
                 """
-                INSERT INTO book (title, author)
-                VALUES 
-                    ('1984', 'George Orwell'),
-                    ('To Kill a Mockingbird', 'Harper Lee'),
-                    ('The Great Gatsby', 'F. Scott Fitzgerald');
+                INSERT INTO book (id, title, author, is_reserved)
+                VALUES
+                    (1, '1984', 'George Orwell', false),
+                    (2, 'To Kill a Mockingbird', 'Harper Lee', false),
+                    (3, 'The Great Gatsby', 'F. Scott Fitzgerald', true);
                 """.trimIndent()
             )
 
@@ -49,15 +49,15 @@ class BookDAOTest(
 
             // THEN
             books.shouldContainExactlyInAnyOrder(
-                Book("1984", "George Orwell"),
-                Book("To Kill a Mockingbird", "Harper Lee"),
-                Book("The Great Gatsby", "F. Scott Fitzgerald")
+                Book(id = 1L, title = "1984", author = "George Orwell", isReserved = false),
+                Book(id = 2L, title = "To Kill a Mockingbird", author = "Harper Lee", isReserved = false),
+                Book(id = 3L, title = "The Great Gatsby", author = "F. Scott Fitzgerald", isReserved = true)
             )
         }
 
         "should add a book to the database" {
             // GIVEN
-            val book = Book("Pride and Prejudice", "Jane Austen")
+            val book = Book(title = "Pride and Prejudice", author = "Jane Austen")
 
             // WHEN
             bookDAO.save(book)
@@ -73,6 +73,7 @@ class BookDAOTest(
                 this["id"].shouldNotBeNull().shouldBeInstanceOf<Int>()
                 this["title"].shouldBe("Pride and Prejudice")
                 this["author"].shouldBe("Jane Austen")
+                this["is_reserved"].shouldBe(false)
             }
         }
 

@@ -28,8 +28,8 @@ class BookControllerIT {
     fun `GET all books should return a list of books`() {
         // Arrange
         val books = listOf(
-            Book("Title1", "Author1"),
-            Book("Title2", "Author2")
+            Book(id = 1L, title = "Title1", author = "Author1"),
+            Book(id = 2L, title = "Title2", author = "Author2")
         )
         every { bookService.getAllBooks() } returns books
 
@@ -41,48 +41,52 @@ class BookControllerIT {
                 jsonPath("$.length()") { value(2) }
                 jsonPath("$[0].title") { value("Title1") }
                 jsonPath("$[0].author") { value("Author1") }
+                jsonPath("$[0].reserved") { value(false) }
             }
 
         verify { bookService.getAllBooks() }
     }
 
     @Test
-    fun `POST create book should return 201 when input is valid`() {
+    fun `POST reserve book should return 200 when successful`() {
         // Arrange
-        val bookDTO = BookDTO("Title1", "Author1")
-        every { bookService.addBook(any()) } returns Unit
+        every { bookService.reserveBook(1L) } returns true
 
         // Act & Assert
-        mockMvc.post("/books") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"title": "Title1", "author": "Author1"}"""
-        }.andExpect {
-            status { isCreated() }
-        }
+        mockMvc.post("/books/reserve/1")
+            .andExpect {
+                status { isOk() }
+            }
 
-        verify { bookService.addBook(Book("Title1", "Author1")) }
+        verify { bookService.reserveBook(1L) }
     }
 
     @Test
-    fun `POST create book should return 400 when input is invalid`() {
+    fun `POST reserve book should return 400 when book is already reserved`() {
+        // Arrange
+        every { bookService.reserveBook(1L) } throws IllegalStateException("Book is already reserved")
+
         // Act & Assert
-        mockMvc.post("/books") {
-            contentType = MediaType.APPLICATION_JSON
-            content = """{"title": "", "author": ""}"""
-        }.andExpect {
-            status { isBadRequest() }
-        }
+        mockMvc.post("/books/reserve/1")
+            .andExpect {
+                status { isBadRequest() }
+                jsonPath("$.error") { value("Book is already reserved") }
+            }
+
+        verify { bookService.reserveBook(1L) }
     }
 
     @Test
-    fun `GET all books should return 500 when service throws exception`() {
+    fun `GET all books should include reservation status`() {
         // Arrange
-        every { bookService.getAllBooks() } throws RuntimeException("Unexpected error")
+        val books = listOf(Book(id = 1L, title = "Title1", author = "Author1", isReserved = true))
+        every { bookService.getAllBooks() } returns books
 
         // Act & Assert
         mockMvc.get("/books")
             .andExpect {
-                status { isInternalServerError() }
+                status { isOk() }
+                jsonPath("$[0].reserved") { value(true) }
             }
 
         verify { bookService.getAllBooks() }

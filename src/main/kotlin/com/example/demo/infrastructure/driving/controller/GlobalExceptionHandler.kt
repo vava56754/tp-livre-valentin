@@ -9,12 +9,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException::class)
-    fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<String> {
-        return ResponseEntity(ex.message, HttpStatus.BAD_REQUEST)
+    fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity(mapOf("error" to ex.message!!), HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(RuntimeException::class)
-    fun handleRuntimeException(): ResponseEntity<String> {
-        return ResponseEntity("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handleRuntimeException(): ResponseEntity<Map<String, String>> {
+        return ResponseEntity(mapOf("error" to "An unexpected error occurred"), HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalStateException(ex: IllegalStateException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity(mapOf("error" to ex.message!!), HttpStatus.BAD_REQUEST)
     }
 }

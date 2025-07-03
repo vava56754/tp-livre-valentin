@@ -13,12 +13,12 @@ class BookService(private val bookRepository: BookRepository) {
         return bookRepository.findAll().sortedBy { it.title }
     }
 
-    fun reserveBook(title: String): Boolean {
-        val book = bookRepository.findAll().find { it.title == title }
+    fun reserveBook(id: Long): Boolean {
+        val book = bookRepository.findAll().find { it.id == id }
         return if (book != null && !book.isReserved) {
-            bookRepository.reserveBook(title)
+            bookRepository.reserveBook(id)
         } else {
-            false
+            throw IllegalStateException("Book is already reserved or does not exist")
         }
     }
 }
