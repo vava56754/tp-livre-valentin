@@ -77,6 +77,34 @@ class BookDAOTest(
             }
         }
 
+        "should reserve a book in the database" {
+            // GIVEN
+            performQuery(
+                // language=sql
+                """
+                INSERT INTO book (id, title, author, is_reserved)
+                VALUES (1, '1984', 'George Orwell', false);
+                """.trimIndent()
+            )
+
+            // WHEN
+            val result = bookDAO.reserveBook(1L)
+
+            // THEN
+            result shouldBe true
+            val updatedBook = performQuery(
+                // language=sql
+                "SELECT * FROM book WHERE id = 1"
+            ).first()
+
+            assertSoftly(updatedBook) {
+                this["id"].shouldBe(1)
+                this["title"].shouldBe("1984")
+                this["author"].shouldBe("George Orwell")
+                this["is_reserved"].shouldBe(true)
+            }
+        }
+
         afterSpec {
             container.stop()
         }
